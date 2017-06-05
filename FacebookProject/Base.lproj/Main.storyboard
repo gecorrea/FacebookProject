@@ -27,13 +27,22 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fNC-Xu-HxV" customClass="FBSDKLoginButton">
+                                <rect key="frame" x="164.5" y="318.5" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="qBZ-Cs-Gfl" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="128" id="YPg-iu-ckZ"/>
+                            <constraint firstItem="fNC-Xu-HxV" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="h42-Ar-m2d"/>
+                            <constraint firstItem="fNC-Xu-HxV" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="je5-OK-Vku"/>
                             <constraint firstItem="qBZ-Cs-Gfl" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="rAu-0Y-nHj"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="loginButton" destination="fNC-Xu-HxV" id="hiP-cQ-qTc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

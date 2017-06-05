@@ -1,16 +1,14 @@
 import UIKit
-import FacebookLogin
-import FacebookShare
+import FBSDKLoginKit
+import FBSDKShareKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIImagePickerControllerDelegate {
+    
+    @IBOutlet weak var loginButton: FBSDKLoginButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let loginButton = LoginButton(readPermissions: [ .publicProfile ])
-        loginButton.center = view.center
-        
-        view.addSubview(loginButton)
     }
 
 }
