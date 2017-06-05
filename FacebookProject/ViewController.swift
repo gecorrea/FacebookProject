@@ -1,4 +1,5 @@
 import UIKit
+import FacebookCore
 import FacebookLogin
 import FacebookShare
 
@@ -8,6 +9,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     let picker = UIImagePickerController()
+    var choosenImage = UIImage()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +20,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         view.addSubview(loginButton)
         loginButton.delegate = self
         picker.delegate = self
+        
+        let request = GraphRequest(graphPath: "me", parameters: ["fields":"email"], accessToken: AccessToken.current, httpMethod: .GET, apiVersion: FacebookCore.GraphAPIVersion.defaultVersion)
+        request.start { (response, result) in
+            switch result {
+            case .success(let value):
+                print(value.dictionaryValue)
+            case .failed(let error):
+                print(error)
+            }
+        }
         
     }
     
@@ -49,18 +61,38 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func useCamera(_ sender: UIBarButtonItem) {
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.allowsEditing = false
+            picker.sourceType = UIImagePickerControllerSourceType.camera
+            picker.cameraCaptureMode = .photo
+            picker.modalPresentationStyle = .fullScreen
+            present(picker,animated: true,completion: nil)
+        }
+        else {
+            noCamera()
+        }
+    }
+    
+    func noCamera(){
+        let alertVC = UIAlertController(title: "No Camera", message: "Sorry, this device has no camera", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style:.default, handler: nil)
+        alertVC.addAction(okAction)
+        present(alertVC, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else {
-            return // No image selected.
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            self.choosenImage = image
         }
         
-        let photo = Photo(image: image, userGenerated: true)
-        let content = PhotoShareContent(photos: [photo])
-        try ShareDialog.show(from: ViewController, content: content)
         
+        let photo = Photo(image: self.choosenImage, userGenerated: true)
+        var content = PhotoShareContent(photos: [photo])
+        content.photos = [photo]
+        
+        dismiss(animated: true, completion: nil)
     }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }

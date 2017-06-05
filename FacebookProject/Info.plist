@@ -62,6 +62,8 @@
 		<string>fbshareextension</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Pic-Share would like to access your camera and photos.</string>
+	<string>Pic-Share would like to access your photos library.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Pic-Share would like to access your camera. Say cheese!</string>
 </dict>
 </plist>
