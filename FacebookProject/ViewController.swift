@@ -9,27 +9,61 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     let picker = UIImagePickerController()
+    var loginButton: LoginButton!
+    @IBOutlet weak var shareButton: UIBarButtonItem!
+    @IBOutlet weak var picShareToolbar: UIToolbar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let loginButton = LoginButton(readPermissions: [ .publicProfile, .email ])
+        loginButton = LoginButton(readPermissions: [ .publicProfile, .email ])
         loginButton.center = view.center
+        
+        titleLabel.center = view.center
+        titleLabel.center.y = titleLabel.center.y - 150
         
         view.addSubview(loginButton)
         loginButton.delegate = self
         picker.delegate = self
         
+        if imageView.image == nil {
+            shareButton.isEnabled = false
+        }
+        
         let request = GraphRequest(graphPath: "me", parameters: ["fields":"email"], accessToken: AccessToken.current, httpMethod: .GET, apiVersion: FacebookCore.GraphAPIVersion.defaultVersion)
         request.start { (response, result) in
             switch result {
             case .success(let value):
-                print(value.dictionaryValue)
+                if let email = value.dictionaryValue {
+                print(email)
+                    self.userLoggedIn()
+                }
             case .failed(let error):
+                self.picShareToolbar.isHidden = true
                 print(error)
             }
         }
         
+    }
+    
+    func userLoggedIn() {
+        UIView.animate(withDuration: 2.0, animations: { () -> Void in
+            self.titleLabel.center.y = self.titleLabel.center.y - 100
+            self.loginButton.center.y = self.loginButton.center.y + 250
+            self.view.backgroundColor = .gray
+            self.picShareToolbar.isHidden = false
+        })
+    }
+    
+    func  userLoggedOut() {
+        UIView.animate(withDuration: 2.0, animations: { () -> Void in
+            self.imageView.isHidden = true
+            self.titleLabel.center.y = self.titleLabel.center.y + 100
+            self.loginButton.center.y = self.loginButton.center.y - 250
+            self.view.backgroundColor = .black
+            self.picShareToolbar.isHidden = true
+            self.shareButton.isEnabled = false
+        })
     }
     
     func loginButtonDidCompleteLogin(_ loginButton: LoginButton, result: LoginResult) {
@@ -39,16 +73,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         case .cancelled:
             print("Cancelled")
         case .success:
-            titleLabel.isHidden = true
-            loginButton.isHidden = true
-            UIView.animate(withDuration: 2.0, animations: { () -> Void in
-                self.view.backgroundColor = .gray
-            })
+            userLoggedIn()
             print("Logged In")
         }
     }
     func loginButtonDidLogOut(_ loginButton: LoginButton) {
-        
+        userLoggedOut()
     }
 
 
@@ -84,16 +114,32 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         imageView.contentMode = .scaleAspectFit
         imageView.image = chosenImage
         imageView.isHidden = false
-        
-//        let photo = Photo(image: self.imageView.image!, userGenerated: true)
-//        var content = PhotoShareContent(photos: [photo])
-//        content.photos = [photo]
-//        
+        shareButton.isEnabled = true
         dismiss(animated: true, completion: nil)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func shareOnFacebook(_ sender: UIBarButtonItem) {
+        if let myViewController = UIApplication.shared.keyWindow?.rootViewController {
+            let photo = Photo(image: self.imageView.image!, userGenerated: true)
+            let content = PhotoShareContent(photos: [photo])
+            do {
+                try ShareDialog.show(from: myViewController, content: content)
+            }
+            catch {
+                cannotShare()
+            }
+        }
+    }
+    
+    func cannotShare(){
+        let alertVC = UIAlertController(title: "Photo not shared", message: "Sorry, your photo could not be shared", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style:.default, handler: nil)
+        alertVC.addAction(okAction)
+        present(alertVC, animated: true, completion: nil)
     }
 
 }
