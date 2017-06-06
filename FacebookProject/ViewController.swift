@@ -9,7 +9,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     let picker = UIImagePickerController()
-    var choosenImage = UIImage()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,15 +80,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            self.choosenImage = image
-        }
+        let chosenImage = info[UIImagePickerControllerOriginalImage] as? UIImage
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = chosenImage
+        imageView.isHidden = false
         
-        
-        let photo = Photo(image: self.choosenImage, userGenerated: true)
-        var content = PhotoShareContent(photos: [photo])
-        content.photos = [photo]
-        
+//        let photo = Photo(image: self.imageView.image!, userGenerated: true)
+//        var content = PhotoShareContent(photos: [photo])
+//        content.photos = [photo]
+//        
         dismiss(animated: true, completion: nil)
     }
     
