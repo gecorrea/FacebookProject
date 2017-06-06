@@ -2,6 +2,7 @@ import UIKit
 import FacebookCore
 import FacebookLogin
 import FacebookShare
+import MobileCoreServices
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LoginButtonDelegate {
     
@@ -25,6 +26,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         view.addSubview(loginButton)
         loginButton.delegate = self
         picker.delegate = self
+        
+        picker.mediaTypes = [kUTTypeImage as String]
         
         if imageView.image == nil {
             shareButton.isEnabled = false
@@ -85,7 +88,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBAction func photoFromLibrary(_ sender: UIBarButtonItem) {
         picker.allowsEditing = false
         picker.sourceType = .photoLibrary
-        picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)!
         present(picker, animated: true, completion: nil)
     }
     
