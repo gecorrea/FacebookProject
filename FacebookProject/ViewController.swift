@@ -51,6 +51,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func userLoggedIn() {
         UIView.animate(withDuration: 2.0, animations: { () -> Void in
+            self.view.layoutIfNeeded()
             self.titleLabel.center.y = self.titleLabel.center.y - 100
             self.loginButton.center.y = self.loginButton.center.y + 250
             self.view.backgroundColor = .gray
@@ -60,6 +61,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func  userLoggedOut() {
         UIView.animate(withDuration: 2.0, animations: { () -> Void in
+            self.view.layoutIfNeeded()
             self.imageView.isHidden = true
             self.titleLabel.center.y = self.titleLabel.center.y + 100
             self.loginButton.center.y = self.loginButton.center.y - 250
@@ -80,6 +82,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             print("Logged In")
         }
     }
+    
     func loginButtonDidLogOut(_ loginButton: LoginButton) {
         userLoggedOut()
     }
