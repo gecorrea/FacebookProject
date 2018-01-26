@@ -4,15 +4,14 @@ import FacebookLogin
 import FacebookShare
 import MobileCoreServices
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LoginButtonDelegate {
-    
-    
+class ViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     let picker = UIImagePickerController()
     var loginButton: LoginButton!
     @IBOutlet weak var shareButton: UIBarButtonItem!
     @IBOutlet weak var picShareToolbar: UIToolbar!
+    var loginAnimation = Bool()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,15 +37,21 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             switch result {
             case .success(let value):
                 if let email = value.dictionaryValue {
-                print(email)
-                    self.userLoggedIn()
+                    print(email)
                 }
             case .failed(let error):
                 self.picShareToolbar.isHidden = true
                 print(error)
             }
         }
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        loginAnimation = AccessToken.current?.userId != nil ? false : true
+         if loginAnimation == false {
+            self.userLoggedIn()
+        }
     }
     
     func userLoggedIn() {
@@ -56,6 +61,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             self.loginButton.center.y = self.loginButton.center.y + 250
             self.view.backgroundColor = .gray
             self.picShareToolbar.isHidden = false
+            self.loginAnimation = true
         })
     }
     
@@ -68,25 +74,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             self.view.backgroundColor = .black
             self.picShareToolbar.isHidden = true
             self.shareButton.isEnabled = false
+            self.loginAnimation = false
         })
     }
-    
-    func loginButtonDidCompleteLogin(_ loginButton: LoginButton, result: LoginResult) {
-        switch result {
-        case .failed(let error):
-            print(error)
-        case .cancelled:
-            print("Cancelled")
-        case .success:
-            userLoggedIn()
-            print("Logged In")
-        }
-    }
-    
-    func loginButtonDidLogOut(_ loginButton: LoginButton) {
-        userLoggedOut()
-    }
-
 
     @IBAction func photoFromLibrary(_ sender: UIBarButtonItem) {
         picker.allowsEditing = false
@@ -114,19 +104,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         present(alertVC, animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        let chosenImage = info[UIImagePickerControllerOriginalImage] as? UIImage
-        imageView.contentMode = .scaleAspectFit
-        imageView.image = chosenImage
-        imageView.isHidden = false
-        shareButton.isEnabled = true
-        dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
-    
     @IBAction func shareOnFacebook(_ sender: UIBarButtonItem) {
         if let myViewController = UIApplication.shared.keyWindow?.rootViewController {
             let photo = Photo(image: self.imageView.image!, userGenerated: true)
@@ -149,3 +126,40 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
 }
 
+// MARK: - UIImagePickerControllerDelegate
+extension ViewController: UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        let chosenImage = info[UIImagePickerControllerOriginalImage] as? UIImage
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = chosenImage
+        imageView.isHidden = false
+        shareButton.isEnabled = true
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+    }
+}
+
+// Needed for UIImagePickerController
+// MARK: - UINavigationControllerDelegate
+extension ViewController: UINavigationControllerDelegate { }
+
+// MARK: - LoginButtonDelegate
+extension ViewController: LoginButtonDelegate {
+    func loginButtonDidCompleteLogin(_ loginButton: LoginButton, result: LoginResult) {
+        switch result {
+        case .failed(let error):
+            print(error)
+        case .cancelled:
+            print("Cancelled")
+        case .success:
+            print("Logged In")
+        }
+    }
+    
+    func loginButtonDidLogOut(_ loginButton: LoginButton) {
+        userLoggedOut()
+    }
+}
